@@ -17,9 +17,10 @@ class TestPushRequest extends PHPUnit_Framework_TestCase
 
         $airship = $this->getMock('UrbanAirship\Airship', array('request', 'buildUrl'), array('appkey', 'mastersecret'));
 
-        $airship->expects($this->any())
-             ->method('request')
-             ->will($this->returnValue($response));
+        $airship
+            ->expects($this->once())
+            ->method('request')
+            ->will($this->returnValue($response));
 
         $push = new P\PushRequest($airship);
         $push
