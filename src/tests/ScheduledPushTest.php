@@ -4,6 +4,7 @@
  */
 
 use UrbanAirship\Push as P;
+use UrbanAirship\Push\PushResponse;
 
 class TestScheduledPushRequest extends PHPUnit_Framework_TestCase
 {
@@ -31,7 +32,7 @@ class TestScheduledPushRequest extends PHPUnit_Framework_TestCase
             ->setPush($push)
             ->setSchedule(P\scheduledTime(time() + 15));
 
-        $response = $sched->send();
+        $this->assertEquals(new PushResponse($response), $sched->send());
     }
 }
 

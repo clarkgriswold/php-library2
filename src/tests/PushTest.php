@@ -4,6 +4,7 @@
  */
 
 use UrbanAirship\Push as P;
+use UrbanAirship\Push\PushResponse;
 
 class TestPushRequest extends PHPUnit_Framework_TestCase
 {
@@ -27,6 +28,6 @@ class TestPushRequest extends PHPUnit_Framework_TestCase
             ->setDeviceTypes(P\all)
             ->setOptions(array());
 
-        $response = $push->send();
+        $this->assertEquals(new PushResponse($response), $push->send());
     }
 }
