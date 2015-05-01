@@ -1,9 +1,7 @@
 <?php
-/*
-Copyright 2013 Urban Airship and Contributors
-*/
-
-require_once __DIR__ . "/../../vendor/autoload.php";
+/**
+ * @copyright 2013 Urban Airship and Contributors
+ */
 
 use UrbanAirship\Airship;
 

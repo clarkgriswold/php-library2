@@ -15,7 +15,7 @@ class TestScheduledPushRequest extends PHPUnit_Framework_TestCase
         $response->raw_headers = array();
         $response->raw_body    = "{\"schedule_urls\": [\"https://go.urbanairship.com/api/schedules/41742a47-bd36-4a0e-8ce2-866cd8f3b1b5\"]}";
 
-        $airship = $this->getMock('UrbanAirship\Airship', array('request', 'buildUrl'), array('appkey', 'mastersecret'));
+        $airship = $this->getMock('UrbanAirship\Airship', array(), array('appkey', 'mastersecret'));
         $airship
             ->expects($this->once())
             ->method('request')

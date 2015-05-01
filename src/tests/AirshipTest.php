@@ -16,12 +16,12 @@ class TestAirship extends PHPUnit_Framework_TestCase
 
         $request = $this->getMock('StdClass', array('method', 'uri', 'authenticateWith', 'body', 'addHeaders', 'send'));
 
-        $request->expects($this->any())->method('method')->will($this->returnValue($request));
-        $request->expects($this->any())->method('uri')->will($this->returnValue($request));
-        $request->expects($this->any())->method('authenticateWith')->will($this->returnValue($request));
-        $request->expects($this->any())->method('body')->will($this->returnValue($request));
-        $request->expects($this->any())->method('addHeaders')->will($this->returnValue($request));
-        $request->expects($this->any())->method('send')->will($this->returnValue($response));
+        $request->expects($this->once())->method('method')->will($this->returnValue($request));
+        $request->expects($this->once())->method('uri')->will($this->returnValue($request));
+        $request->expects($this->once())->method('authenticateWith')->will($this->returnValue($request));
+        $request->expects($this->once())->method('body')->will($this->returnValue($request));
+        $request->expects($this->once())->method('addHeaders')->will($this->returnValue($request));
+        $request->expects($this->once())->method('send')->will($this->returnValue($response));
 
         $airship = new Airship("key", "secret", $request);
 
@@ -46,12 +46,12 @@ class TestAirship extends PHPUnit_Framework_TestCase
         $response->raw_body    = "{\"error\": \"Bad Request\", \"error_code\": \"40000\", \"details\": \"Oops!\"}";
         $response->request     = $request;
 
-        $request->expects($this->any())->method('method')->will($this->returnValue($request));
-        $request->expects($this->any())->method('uri')->will($this->returnValue($request));
-        $request->expects($this->any())->method('authenticateWith')->will($this->returnValue($request));
-        $request->expects($this->any())->method('body')->will($this->returnValue($request));
-        $request->expects($this->any())->method('addHeaders')->will($this->returnValue($request));
-        $request->expects($this->any())->method('send')->will($this->returnValue($response));
+        $request->expects($this->once())->method('method')->will($this->returnValue($request));
+        $request->expects($this->once())->method('uri')->will($this->returnValue($request));
+        $request->expects($this->once())->method('authenticateWith')->will($this->returnValue($request));
+        $request->expects($this->once())->method('body')->will($this->returnValue($request));
+        $request->expects($this->once())->method('addHeaders')->will($this->returnValue($request));
+        $request->expects($this->once())->method('send')->will($this->returnValue($response));
 
         $airship = new Airship("key", "secret", $request);
 
