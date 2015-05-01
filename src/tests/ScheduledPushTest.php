@@ -1,11 +1,8 @@
 <?php
-/*
-Copyright 2013 Urban Airship and Contributors
-*/
+/**
+ * @copyright 2013 Urban Airship and Contributors
+ */
 
-require_once __DIR__ . "/../../vendor/autoload.php";
-
-use UrbanAirship\Airship;
 use UrbanAirship\Push as P;
 
 class TestScheduledPushRequest extends PHPUnit_Framework_TestCase
@@ -17,7 +14,7 @@ class TestScheduledPushRequest extends PHPUnit_Framework_TestCase
         $response->raw_headers = array();
         $response->raw_body = "{\"schedule_urls\": [\"https://go.urbanairship.com/api/schedules/41742a47-bd36-4a0e-8ce2-866cd8f3b1b5\"]}";
 
-        $airship = $this->getMock('Airship', array('request', 'buildUrl'));
+        $airship = $this->getMock('UrbanAirship\Airship', array('request', 'buildUrl'), array('appkey', 'mastersecret'));
         $airship->expects($this->any())
              ->method('request')
              ->will($this->returnValue($response));

@@ -1,7 +1,7 @@
 <?php
-/*
-Copyright 2013 Urban Airship and Contributors
-*/
+/**
+ * @copyright 2013 Urban Airship and Contributors
+ */
 
 namespace UrbanAirship\Push;
 
@@ -20,7 +20,7 @@ class ScheduledPushRequest extends BasePushRequest
     private $name;
 
     /**
-     * @var array
+     * @var \UrbanAirship\Push\PushRequest
      */
     private $push;
 
@@ -90,11 +90,11 @@ class ScheduledPushRequest extends BasePushRequest
     }
 
     /**
-     * Set the push payload.
+     * Set the push request.
      *
-     * @param array $push
+     * @param \UrbanAirship\Push\PushRequest $push
      */
-    function setPush(array $push)
+    function setPush(PushRequest $push)
     {
         $this->push = $push;
 
