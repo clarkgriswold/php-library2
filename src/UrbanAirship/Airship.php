@@ -8,6 +8,7 @@ namespace UrbanAirship;
 use Httpful\Request;
 use UrbanAirship\Devices\DeviceTokenList;
 use UrbanAirship\Devices\APIDList;
+use UrbanAirship\Push\BatchPushRequest;
 use UrbanAirship\Push\PushRequest;
 use UrbanAirship\Push\ScheduledPushRequest;
 
@@ -64,6 +65,15 @@ class Airship
     public function scheduledPush()
     {
         return new ScheduledPushRequest($this);
+    }
+
+    /**
+     * Return a BatchPushRequest that can be used to send a batch push.
+     * @return \UrbanAirship\Push\BatchPushRequest
+     */
+    public function batchPush()
+    {
+        return new BatchPushRequest($this);
     }
 
     /**

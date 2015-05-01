@@ -1,84 +1,146 @@
 <?php
-/*
-Copyright 2013 Urban Airship and Contributors
-*/
+/**
+ * @copyright 2013 Urban Airship and Contributors
+ */
 
 namespace UrbanAirship\Push;
 
 use UrbanAirship\UALog;
 
-class PushRequest
+class PushRequest extends BasePushRequest
 {
-    const PUSH_URL = "/api/push/";
-    private $airship;
+    /**
+     * @var mixed
+     */
     private $audience;
+
+    /**
+     * @var array
+     */
     private $notification;
-    private $options = null;
+
+    /**
+     * @var mixed
+     */
     private $deviceTypes;
+
+    /**
+     * @var array
+     */
     private $message;
 
-    function __construct($airship)
+    /**
+     * @var array
+     */
+    private $options;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getUrl()
     {
-        $this->airship = $airship;
+        return '/api/push/';
     }
 
-    function setAudience($audience)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getLogMessage()
     {
-        $this->audience = $audience;
-        return $this;
+        return 'Push sent successfully.';
     }
 
-    function setNotification($notification)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getMessagePayloadKey()
     {
-        $this->notification = $notification;
-        return $this;
+        return 'push_ids';
     }
 
-    function setDeviceTypes($deviceTypes)
-    {
-        $this->deviceTypes = $deviceTypes;
-        return $this;
-    }
-
-    function setMessage($message)
-    {
-        $this->message = $message;
-        return $this;
-    }
-
-    function setOptions($options)
-    {
-        $this->options = $options;
-        return $this;
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     function getPayload()
     {
         $payload = array(
-            'audience' => $this->audience,
+            'audience'     => $this->audience,
             'notification' => $this->notification,
             'device_types' => $this->deviceTypes
         );
-        if (!is_null($this->message)) {
+
+        if ( ! is_null($this->message)) {
             $payload['message'] = $this->message;
         }
-        if (!is_null($this->options)) {
+
+        if ( ! is_null($this->options)) {
             $payload['options'] = $this->options;
         }
+
         return $payload;
     }
 
-    function send()
+    /**
+     * Set the audience for the notification.
+     *
+     * @param mixed $audience
+     */
+    function setAudience($audience)
     {
-        $uri = $this->airship->buildUrl(self::PUSH_URL);
-        $logger = UALog::getLogger();
+        $this->audience = $audience;
 
-        $response = $this->airship->request("POST",
-            json_encode($this->getPayload()), $uri, "application/json", 3);
-
-        $payload = json_decode($response->raw_body, true);
-        $logger->info("Push sent successfully.", array("push_ids" => $payload['push_ids']));
-        return new PushResponse($response);
+        return $this;
     }
 
+    /**
+     * Set the notifcation map for the notification.
+     *
+     * @param array $notification
+     */
+    function setNotification(array $notification)
+    {
+        $this->notification = $notification;
+
+        return $this;
+    }
+
+    /**
+     * Set the device type(s) for the notification.
+     *
+     * @param mixed $deviceTypes
+     */
+    function setDeviceTypes($deviceTypes)
+    {
+        $this->deviceTypes = $deviceTypes;
+
+        return $this;
+    }
+
+    /**
+     * Set the message for the notification.
+     *
+     * @param array $message
+     *
+     * @see http://docs.urbanairship.com/api/ua.html#rich-push
+     */
+    function setMessage(array $message)
+    {
+        $this->message = $message;
+
+        return $this;
+    }
+
+    /**
+     * Define the options for the notification.
+     *
+     * @param array $options
+     *
+     * @see http://docs.urbanairship.com/api/ua.html#push-options
+     */
+    function setOptions(array $options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
 }

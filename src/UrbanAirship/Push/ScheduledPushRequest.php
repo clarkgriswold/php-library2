@@ -7,58 +7,97 @@ namespace UrbanAirship\Push;
 
 use UrbanAirship\UALog;
 
-class ScheduledPushRequest
+class ScheduledPushRequest extends BasePushRequest
 {
-    const SCHEDULE_URL = "/api/schedules/";
-    private $airship;
+    /**
+     * @var array
+     */
     private $schedule;
-    private $name = null;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var array
+     */
     private $push;
 
-    function __construct($airship)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getUrl()
     {
-        $this->airship = $airship;
+        return '/api/schedules/';
     }
 
-    function setSchedule($schedule)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getLogMessage()
     {
-        $this->schedule = $schedule;
-        return $this;
+        return 'Scheduled push sent successfully.';
     }
 
-    function setName($name)
+    /**
+     * {@inheritdoc}
+     */
+    protected function getMessagePayloadKey()
     {
-        $this->name = $name;
-        return $this;
+        return 'schedule_urls';
     }
 
-    function setPush($push)
-    {
-        $this->push = $push;
-        return $this;
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     function getPayload()
     {
         $payload = array(
             'schedule' => $this->schedule,
-            'push' => $this->push->getPayload()
+            'push'     => $this->push->getPayload()
         );
-        if (!is_null($this->name)) {
+
+        if ( ! is_null($this->name)) {
             $payload['name'] = $this->name;
         }
+
         return $payload;
     }
 
-    function send()
+    /**
+     * Set the schedule.
+     *
+     * @param array $schedule
+     */
+    function setSchedule(array $schedule)
     {
-        $uri = $this->airship->buildUrl(self::SCHEDULE_URL);
-        $logger = UALog::getLogger();
-        $response = $this->airship->request("POST",
-            json_encode($this->getPayload()), $uri, "application/json", 3);
-        $payload = json_decode($response->raw_body, true);
-        $logger->info("Scheduled push sent successfully.", array("schedule_urls" => $payload['schedule_urls']));
-        return new PushResponse($response);
+        $this->schedule = $schedule;
+
+        return $this;
     }
 
+    /**
+     * Set the schedule name.
+     *
+     * @param string $name
+     */
+    function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Set the push payload.
+     *
+     * @param array $push
+     */
+    function setPush(array $push)
+    {
+        $this->push = $push;
+
+        return $this;
+    }
 }
