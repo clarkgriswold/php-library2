@@ -139,6 +139,23 @@ class BatchPushRequest extends BasePushRequest
     }
 
     /**
+     * Set the message data for a rich message push.
+     *
+     * @param string $notificationName
+     * @param array  $messageMap
+     *
+     * @return $this
+     */
+    public function setMessage($notificationName, array $messageMap)
+    {
+        $this->validateNotificationName($notificationName);
+
+        $this->batchPayloadMap[$notificationName]['message'] = $messageMap;
+
+        return $this;
+    }
+
+    /**
      * Set the options for given notification name.
      *
      * @param string $notificationName
