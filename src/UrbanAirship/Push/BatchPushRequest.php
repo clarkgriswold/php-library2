@@ -129,11 +129,16 @@ class BatchPushRequest extends BasePushRequest
     {
         $this->validateNotificationName($notificationName);
 
-        if (isset($this->batchPayloadMap[$notificationName]['deviceType'][$deviceType])) {
+        if ( ! isset($this->batchPayloadMap[$notificationName]['device_types']))
+        {
+            $this->batchPayloadMap[$notificationName]['device_types'] = array();
+        }
+
+        if (in_array($deviceType, $this->batchPayloadMap[$notificationName]['device_types'], true)) {
             return $this;
         }
 
-        $this->batchPayloadMap[$notificationName]['deviceTypes'][] = $deviceType;
+        $this->batchPayloadMap[$notificationName]['device_types'][] = $deviceType;
 
         return $this;
     }

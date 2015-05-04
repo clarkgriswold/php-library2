@@ -85,7 +85,7 @@ class TestBatchPushRequest extends PHPUnit_Framework_TestCase
     /**
      * Test BatchNotificationRequest with a batch of two.
      */
-    public function testBatchNotificationRequestWithABatchOfTwo()
+    public function testWithABatchOfTwo()
     {
         $uri             = 'http://domain.com/api/push/';
         $requestResponse = $this->getResponse(array(
@@ -140,7 +140,176 @@ class TestBatchPushRequest extends PHPUnit_Framework_TestCase
         $response = $this->batchPushRequest->send();
 
         $this->assertEquals(new PushResponse($requestResponse), $response);
-        $this->assertEquals($this->getExpectedPayload(), $this->batchPushRequest->getPayload());
+        $this->assertEquals($this->getTestWithABatchOfTwoExpectedPayload(), $this->batchPushRequest->getPayload());
+    }
+
+    /**
+     * Test reseting of the batch payload map.
+     */
+    public function testResetBatchPayloadMap()
+    {
+        $notificationName = 'some_notification_identifier';
+        $payloadMap       = array(
+            'audienceMap'     => P\alias('some_alias'),
+            'notificationMap' => array('message' => 'Some message'),
+            'deviceTypeList'  => array('android'),
+        );
+
+        $this->createNewBatch($notificationName, $payloadMap);
+
+        $this->assertEquals(array(
+            array(
+                'audience' => array(
+                    'alias' => 'some_alias',
+                ),
+                'notification' => array(
+                    'message' => 'Some message',
+                ),
+                'device_types' => array(
+                    'android',
+                )
+            )),
+            $this->batchPushRequest->getPayload()
+        );
+
+        $this->batchPushRequest->resetBatchPayloadMap();
+
+        $this->assertEquals(array(), $this->batchPushRequest->getPayload());
+    }
+
+    /**
+     * Test pushing device types to the payload.
+     *
+     * @param array $deviceTypeList
+     * @param array $expectedResult
+     *
+     * @dataProvider provideDataForTestPushingDeviceTypes
+     */
+    public function testPushingDeviceTypes(array $deviceTypeList, array $expectedResult)
+    {
+        $notificationName = 'some_notification_identifier';
+
+        $this->batchPushRequest->createNewNotification($notificationName);
+
+        foreach($deviceTypeList as $deviceType) {
+            $this->batchPushRequest->pushDeviceType($notificationName, $deviceType);
+        }
+
+        $this->assertEquals($expectedResult, $this->batchPushRequest->getPayload());
+    }
+
+    /**
+     * Data provider for testPushingDeviceTypes().
+     *
+     * @return array
+     */
+    public function provideDataForTestPushingDeviceTypes()
+    {
+        return array(
+            // Test pushing one type
+            array(
+                array('ios'),
+                array(
+                    array(
+                        'device_types' => array(
+                            'ios',
+                        ),
+                    ),
+                ),
+            ),
+            // Test pushing two types
+            array(
+                array(
+                    'ios',
+                    'android'
+                ),
+                array(
+                    array(
+                        'device_types' => array(
+                            'ios',
+                            'android',
+                        ),
+                    ),
+                ),
+            ),
+            // Test pushing two of the same resulting in only one.
+            array(
+                array(
+                    'ios',
+                    'ios',
+                ),
+                array(
+                    array(
+                        'device_types' => array(
+                            'ios',
+                        ),
+                    ),
+                ),
+            ),
+        );
+    }
+
+    public function testWithMessagesAndOptions()
+    {
+        $uri             = 'http://domain.com/api/push/';
+        $requestResponse = $this->getResponse(array(
+            'ok'           => true,
+            'operation_id' => '409f1930-f03c-11e4-9461-90e2ba273350',
+            'push_ids'     => array(
+                '91baebaa-2652-4ccb-bbd0-45305b5ac6ae',
+                '0759cb34-f638-4a7e-9f3e-28ae5ed85760',
+            ),
+        ));
+
+        // First notifiction
+        $notificationName = 'some_notification_identifier_1';
+        $payloadMap       = array(
+            'audienceMap'     => P\alias('some_alias_1'),
+            'notificationMap' => array('message' => 'Some message 1'),
+            'deviceTypeList'  => array('ios'),
+        );
+
+        $this->createNewBatch($notificationName, $payloadMap);
+
+        // Second notification
+        $notificationName = 'some_notification_identifier_2';
+        $payloadMap       = array(
+            'audienceMap'     => P\alias('some_alias_2'),
+            'notificationMap' => array('message' => 'Some message 2'),
+            'deviceTypeList'  => array('android'),
+            'message'         => array(
+                'title' => 'some title',
+                'body'  => 'some body',
+            ),
+            'options'         => array('expiry' => '2015-04-01T12:00:00'),
+        );
+
+        $this->createNewBatch($notificationName, $payloadMap);
+
+        $this
+            ->airship
+            ->expects($this->once())
+            ->method('buildUrl')
+            ->with('/api/push/')
+            ->will($this->returnValue($uri));
+
+        $this
+            ->airship
+            ->expects($this->once())
+            ->method('request')
+            ->with(
+                'POST',
+                json_encode($this->batchPushRequest->getPayload()),
+                $uri,
+                'application/json',
+                3
+            )
+            ->will($this->returnValue($requestResponse));
+
+        $response = $this->batchPushRequest->send();
+
+        $this->assertEquals(new PushResponse($requestResponse), $response);
+        $this->assertEquals($this->getTestWithMessageAndOptionsExpectedPayload(), $this->batchPushRequest->getPayload());
     }
 
     /**
@@ -172,7 +341,7 @@ class TestBatchPushRequest extends PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    private function getExpectedPayload()
+    private function getTestWithABatchOfTwoExpectedPayload()
     {
         return array(
             array(
@@ -193,8 +362,48 @@ class TestBatchPushRequest extends PHPUnit_Framework_TestCase
                 'notification' => array(
                     'message' => 'Some message 2',
                 ),
-                'device_types' => array (
+                'device_types' => array(
                     'android',
+                ),
+            ),
+        );
+    }
+
+    /**
+     * Retrieve the expected Payload.
+     *
+     * @return array
+     */
+    private function getTestWithMessageAndOptionsExpectedPayload()
+    {
+        return array(
+            array(
+                'audience' => array(
+                    'alias' => 'some_alias_1',
+                ),
+                'notification' => array(
+                    'message' => 'Some message 1',
+                ),
+                'device_types' => array(
+                    'ios',
+                ),
+            ),
+            array(
+                'audience' => array(
+                    'alias' => 'some_alias_2',
+                ),
+                'notification' => array(
+                    'message' => 'Some message 2',
+                ),
+                'device_types' => array(
+                    'android',
+                ),
+                'message' => array(
+                    'title' => 'some title',
+                    'body'  => 'some body',
+                ),
+                'options' => array(
+                    'expiry' => '2015-04-01T12:00:00',
                 ),
             ),
         );
